@@ -1,0 +1,99 @@
+<ion-header class="fadeIn">
+  <ion-navbar>
+    <ion-buttons start>
+        <button ion-button icon-only [style.paddingLeft]="'5px'">
+          <div [style.position]="'relative'">
+            <img src="https://files.slack.com/files-pri/T1038LNCA-F7N1CLYRJ/shoppy-hour-logo-mini.png" height="28px" width="28px">
+
+            <span class="notification-count">5</span>
+          </div>
+        </button>
+    </ion-buttons>
+      
+    <ion-segment [(ngModel)]="displayMode" (ngModelChange)="handleDisplayModeChange()">
+        <ion-segment-button value="list">
+          <ion-icon name="list"></ion-icon>
+        </ion-segment-button>
+        <ion-segment-button value="map">
+          <ion-icon name="map"></ion-icon>
+        </ion-segment-button>
+      </ion-segment>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <div [ngSwitch]="displayMode">
+    <ion-list *ngSwitchCase="'list'">
+        
+      <ion-card *ngFor="let o of offers" [style.margin]="'0px'" [style.width]="'100%'">
+        <div [style.position]="'relative'">
+          <img [src]="o.image" width="24px" *ngIf="o.image">
+          <span [style.position]="'absolute'" [style.right]="'2%'" [style.top]="'5%'" [style.backgroundColor]="'black'" [style.color]="'white'" [style.padding]="'5px'" [style.borderRadius]="'15px'">Expires: {{o.validityToDate.replace(' GMT', '')}}</span>
+        </div>
+        <ion-card-content>
+          <ion-card-title>
+              {{o.offerTitle}}
+          </ion-card-title>
+
+          <p [style.fontSize]="'8pt'">{{o.merchantTerms?.text}}</p>
+
+          <div [style.marginTop]="'5px'">
+              <div>
+                <div [style.fontSize]="'12pt'">{{o.locations[0].merchantName}}</div>
+              </div>
+              <div [style.marginTop]="'3px'">
+                <ion-icon name="clock" [style.fontSize]="'1.8em'"></ion-icon>
+                &nbsp; {{o.locations[0].waitTime}} minutes
+                &nbsp; &nbsp;
+                <ion-icon name="car" [style.fontSize]="'1.8em'"></ion-icon>
+                &nbsp;
+                {{o.locations[0].distance}} mi
+              </div>
+              <div>
+                <ion-badge item-start>LOWEST WAIT TIME</ion-badge>
+              </div>
+              <div [style.paddingTop]="'3px'">
+                  <div [style.fontSize]="'9pt'">{{o.locations[0].address}}</div>
+              </div>
+          </div>
+
+            <div [style.textAlign]="'right'" *ngIf="o.locations && o.locations.length > 1 && !o.expanded">
+                <button ion-button clear icon-only (click)="o.expanded = true">
+                  <ion-icon name="more"></ion-icon>
+                </button>
+            </div>
+
+
+
+          <div *ngIf="o.locations && o.locations.length > 1 && o.expanded">
+            <div [style.marginTop]="'5px'" *ngFor="let location of o.locations | slice:1" [style.paddingTop]="'3px'" [style.borderTop]="'solid gray 1px'">
+                <div>
+                  <div [style.fontSize]="'12pt'">{{location.merchantName}}</div>
+                </div>
+                <div>
+                  <ion-icon name="clock"></ion-icon>
+                  &nbsp; {{location.waitTime}} minutes
+                    &nbsp; &nbsp;
+                  <ion-icon name="car"></ion-icon>
+                  &nbsp;
+                  {{location.distance}} mi
+                </div>
+                <div [style.paddingTop]="'3px'">
+                    <div [style.fontSize]="'9pt'">{{location.address}}</div>
+                </div>
+            </div>
+          </div>
+
+          <div [style.textAlign]="'right'" *ngIf="o.locations && o.locations.length > 1 && o.expanded">
+              <button ion-button clear icon-only (click)="o.expanded = false">
+                <ion-icon name="arrow-up"></ion-icon>
+              </button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ion-list>
+    <ion-list *ngSwitchCase="'map'">
+        <div #map id="map" [style.height]="'500px'"></div>
+    </ion-list>
+  </div>
+</ion-content>

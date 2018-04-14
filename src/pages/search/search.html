@@ -1,0 +1,104 @@
+<ion-header>
+  <ion-navbar>
+      <ion-buttons start>
+          <button ion-button icon-only [style.paddingLeft]="'5px'" (click)="showAlert()">
+            <div [style.position]="'relative'">
+              <img src="https://files.slack.com/files-pri/T1038LNCA-F7N1CLYRJ/shoppy-hour-logo-mini.png" height="28px" width="28px">
+  
+              <span class="notification-count">5</span>
+            </div>
+          </button>
+      </ion-buttons>
+
+      <ion-segment [(ngModel)]="displayMode" (ngModelChange)="handleDisplayModeChange()">
+        <ion-segment-button value="list">
+          <ion-icon name="list"></ion-icon>
+        </ion-segment-button>
+        <ion-segment-button value="map">
+          <ion-icon name="map"></ion-icon>
+        </ion-segment-button>
+      </ion-segment>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <ion-searchbar (ionInput)="getItems($event)"></ion-searchbar>
+  <div [ngSwitch]="displayMode">
+      <ion-list *ngSwitchCase="'list'">
+        <ion-card *ngFor="let s of items" [style.margin]="'10px'">
+          <div [style.position]="'relative'">
+              <img [src]="s.photos.href" *ngIf="s.photos">
+            <span [style.position]="'absolute'" [style.right]="'2%'" [style.top]="'5%'" [style.backgroundColor]="'black'" [style.color]="'white'" [style.padding]="'5px'" [style.width]="'30px'" [style.textAlign]="'center'" [style.borderRadius]="'25px'">
+              <ion-icon name="star" class="favorite-icon"></ion-icon>
+            </span>
+          </div>
+          <ion-card-content>
+            <ion-card-title [style.paddingBottom]="'0px'" [style.marginBottom]="'0px'">
+                {{s.merchantName}}
+            </ion-card-title>
+            
+            {{s.address.streetAddress1}}
+            <br *ngIf="s.historyData.lastVisited">
+            <span [style.fontSize]="'9pt'" *ngIf="s.historyData.lastVisited">Last Visited: {{s.historyData.lastVisited?.substring(0, 10)}}</span>
+
+            <div [style.paddingTop]="'10px'">
+              <div [style.display]="'inline-block'" [style.width]="'32%'" [style.textAlign]="'center'">
+                <ion-icon name="pricetags" [style.color]="s.offers && s.offers.length > 0? '#ff4f24': 'gray'" [style.fontSize]="'1.8em'"></ion-icon>
+                <div>Offers</div>
+              </div>
+              <div [style.display]="'inline-block'" [style.width]="'32%'" [style.textAlign]="'center'">
+                <ion-icon name="clock" [style.fontSize]="'1.8em'"></ion-icon>
+                <div>{{s.waitTime}} minutes</div>
+              </div>
+              <div [style.display]="'inline-block'" [style.width]="'32%'" [style.textAlign]="'center'">
+                <ion-icon name="car" [style.fontSize]="'1.8em'"></ion-icon>
+                <div>{{s.distance}} mi</div>
+              </div>
+            </div>
+
+            <ngx-charts-bar-vertical *ngIf="s.times"
+              [view]="[275, 150]"
+              [scheme]="{domain: ['#ff4f24']}"
+              [results]="s.times"
+              [gradient]="false"
+              [xAxis]="true"
+              [yAxis]="false"
+              [legend]="false"
+              [showXAxisLabel]="false"
+              [showYAxisLabel]="false">
+            </ngx-charts-bar-vertical>
+            
+            <div [style.textAlign]="'right'" *ngIf="s.offers && s.offers.length > 0 && !s.expanded">
+                <button ion-button (click)="s.expanded = true">
+                  View Offers
+                </button>
+            </div>
+
+
+          <div *ngIf="s.offers && s.offers.length > 0 && s.expanded">
+              <div [style.marginTop]="'5px'" *ngFor="let offer of s.offers" [style.paddingTop]="'3px'" [style.borderTop]="'solid gray 1px'">
+                  <img [src]="offer.image" height="40" [style.verticalAlign]="'middle'" [style.width]="'40px'" [style.display]="'inline-block'" *ngIf="offer.image">
+                  <span [style.fontSize]="'13pt'">{{offer.offerTitle}}</span>
+
+                  <span [style.fontSize]="'8pt'" [style.color]="'red'" [style.padding]="'5px'" [style.borderRadius]="'15px'">Expires: {{offer.validityToDate.replace(' GMT', '')}}</span>
+                  <br>
+                  <span [style.fontSize]="'8pt'">{{offer.merchantTerms?.text}}</span>
+                  <p [style.paddingTop]="'5px'" [style.textAlign]="'left'">
+                    <ion-badge *ngFor="let promo of offer.promotionChannelList" [style.marginRight]="'3px'" [style.marginTop]="'3px'">{{promo.value}}</ion-badge>
+                  </p>
+              </div>
+            </div>
+  
+            <div [style.textAlign]="'right'" *ngIf="s.offers && s.offers.length > 0 && s.expanded">
+                <button ion-button clear icon-only (click)="s.expanded = false">
+                  <ion-icon name="arrow-up"></ion-icon>
+                </button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-list>
+      <ion-list *ngSwitchCase="'map'">
+          <div #map id="map" [style.height]="'500px'"></div>
+      </ion-list>
+    </div>
+</ion-content>
